@@ -11,8 +11,7 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            /* Atualizado com a nova cor */
-            background-color: #005e6a; 
+            background-color: #005e6a; /* Sua cor definida */
         }
         iframe {
             width: 100%;
@@ -22,7 +21,11 @@
     </style>
 </head>
 <body>
-    <iframe src="https://dashboard-barbearia-lb.onrender.com"></iframe>
+    <iframe 
+        src="https://dashboard-barbearia-lb.onrender.com"
+        allow="camera; microphone; geolocation; payment; fullscreen"
+        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-downloads">
+    </iframe>
     
     <script>
         if ('serviceWorker' in navigator) {
