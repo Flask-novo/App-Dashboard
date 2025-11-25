@@ -2,7 +2,7 @@
 
 // --- CONFIGURAÇÃO ---
 // Mudei para v5 para garantir um novo teste limpo
-const NOME_CACHE = 'dashboard-lb-v5'; 
+const NOME_CACHE = 'dashboard-lb-v6'; 
 
 // --- CORREÇÃO CRÍTICA ---
 // Usei ponto-barra (./) para garantir que ele ache os arquivos 
