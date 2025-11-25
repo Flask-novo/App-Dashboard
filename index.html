@@ -6,7 +6,6 @@
     <title>Dashboard LB</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Estilos Gerais */
         body, html {
             margin: 0;
             padding: 0;
@@ -23,7 +22,7 @@
 
         /* --- Estilo da Caixa de Notificação --- */
         #aviso-atualizacao {
-            display: none; /* Começa invisível */
+            display: none;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -69,29 +68,9 @@
             background-color: #004049;
             transform: scale(0.98);
         }
-
-        /* --- ESTILO DO DEBUG (Será removido depois) --- */
-        #debug-log {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.85);
-            color: #00ff00; /* Verde Hacker */
-            padding: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 10000;
-            pointer-events: none; /* Permite clicar através dele */
-            white-space: pre-wrap;
-        }
     </style>
 </head>
 <body>
-
-    <div id="debug-log">Iniciando logs do sistema...</div>
 
     <iframe 
         src="https://dashboard-barbearia-lb.onrender.com"
@@ -105,87 +84,49 @@
     </div>
     
     <script>
-        // Função para escrever na tela
-        function log(msg) {
-            const el = document.getElementById('debug-log');
-            const time = new Date().toLocaleTimeString();
-            el.innerHTML += `<br>[${time}] ${msg}`;
-            console.log(`[${time}] ${msg}`);
-            // Rola para o final
-            el.scrollTop = el.scrollHeight;
-        }
-
         let novoWorker;
 
         function mostrarNotificacao() {
-            log('⚠️ CHAMADA: mostrarNotificacao() executada.');
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                log('Tentando registrar o Service Worker...');
-                
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    log('✅ Service Worker registrado com sucesso.');
-
-                    // --- 1. Verificação Inicial (Ao abrir o app) ---
-                    if (reg.controller) {
-                        log('ℹ️ Página já controlada por um SW.');
-                    } else {
-                        log('ℹ️ Página ainda não controlada (primeira visita?).');
-                    }
-
+                    
+                    // 1. Verifica se já baixou algo em background
                     if (reg.waiting) {
-                        log('🛑 ENCONTRADO SW EM ESPERA (WAITING)!');
-                        log('-> Exibindo botão de atualização agora.');
                         novoWorker = reg.waiting;
                         mostrarNotificacao();
-                    } else {
-                        log('ℹ️ Nenhum SW esperando no início.');
                     }
 
-                    // --- 2. Monitoramento de Novas Atualizações ---
+                    // 2. Verifica se está baixando algo agora
                     reg.addEventListener('updatefound', () => {
-                        log('🔄 UPDATEFOUND: O navegador encontrou um novo sw.js!');
                         novoWorker = reg.installing;
 
                         novoWorker.addEventListener('statechange', () => {
-                            log(`Estado do novo SW mudou para: ${novoWorker.state}`);
-                            
                             if (novoWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                log('✅ Novo SW instalado e pronto. Esperando ativação.');
                                 mostrarNotificacao();
-                            } else if (novoWorker.state === 'activated') {
-                                log('🚀 Novo SW ativou imediatamente (sem esperar).');
                             }
                         });
                     });
-                }).catch(err => {
-                    log('❌ Erro ao registrar SW: ' + err);
                 });
             });
 
-            // --- 3. Recarregamento da Página ---
+            // 3. Recarrega a página ao atualizar
             let refreshing;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-                log('🔄 Controller mudou! Recarregando página...');
                 if (refreshing) return;
                 window.location.reload();
                 refreshing = true;
             });
-        } else {
-            log('❌ Navegador não suporta Service Worker.');
         }
 
-        // --- 4. Ação do Botão ---
+        // 4. Clique do botão
         document.getElementById('btn-atualizar').addEventListener('click', () => {
-            log('Botão clicado. Enviando mensagem SKIP_WAITING...');
             if (novoWorker) {
                 novoWorker.postMessage({ type: 'SKIP_WAITING' });
                 document.getElementById('aviso-atualizacao').style.display = 'none';
-            } else {
-                log('❌ Erro: novoWorker não definido ao clicar.');
             }
         });
     </script>
