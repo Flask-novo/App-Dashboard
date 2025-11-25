@@ -6,35 +6,124 @@
     <title>Dashboard LB</title>
     <link rel="manifest" href="manifest.json">
     <style>
+        /* Estilos Gerais */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-color: #005e6a; /* Sua cor definida */
+            background-color: #005e6a;
+            font-family: sans-serif;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
+
+        /* --- Estilo da Caixa de Notificação --- */
+        #aviso-atualizacao {
+            display: none; /* Começa invisível */
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px; /* Margem para celulares */
+            max-width: 350px;
+            margin: 0 auto; /* Centraliza se tiver espaço sobrando */
+            background-color: #ffffff;
+            color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 9999; /* Fica acima do iframe */
+            text-align: center;
+            border: 2px solid #005e6a;
+            animation: subir 0.5s ease-out;
+        }
+
+        @keyframes subir {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #aviso-atualizacao p {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #005e6a;
+        }
+
+        #btn-atualizar {
+            background-color: #005e6a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #btn-atualizar:active {
+            background-color: #004049;
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
+
     <iframe 
         src="https://dashboard-barbearia-lb.onrender.com"
         allow="camera; microphone; geolocation; payment; fullscreen"
         sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-downloads">
     </iframe>
     
+    <div id="aviso-atualizacao">
+        <p>Nova atualização disponível!</p>
+        <button id="btn-atualizar">ATUALIZAR APP</button>
+    </div>
+    
     <script>
+        let novoWorker;
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA registrado!', reg))
-                    .catch(err => console.log('Erro no PWA:', err));
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('PWA registrado com sucesso.');
+
+                    // Detecta se há um novo SW sendo instalado
+                    reg.addEventListener('updatefound', () => {
+                        novoWorker = reg.installing;
+
+                        novoWorker.addEventListener('statechange', () => {
+                            // Quando o novo SW estiver pronto ("installed"), mostramos o aviso
+                            if (novoWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('aviso-atualizacao').style.display = 'block';
+                            }
+                        });
+                    });
+                });
+            });
+
+            // Quando a atualização for aplicada, recarrega a página
+            let refreshing;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (refreshing) return;
+                window.location.reload();
+                refreshing = true;
             });
         }
+
+        // Clique do botão
+        document.getElementById('btn-atualizar').addEventListener('click', () => {
+            if (novoWorker) {
+                // Manda o comando para o sw.js trocar a versão
+                novoWorker.postMessage({ type: 'SKIP_WAITING' });
+                // Esconde o aviso
+                document.getElementById('aviso-atualizacao').style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
