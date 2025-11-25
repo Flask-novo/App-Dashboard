@@ -27,15 +27,15 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            left: 20px; /* Margem para celulares */
+            left: 20px;
             max-width: 350px;
-            margin: 0 auto; /* Centraliza se tiver espaço sobrando */
+            margin: 0 auto;
             background-color: #ffffff;
             color: #333;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            z-index: 9999; /* Fica acima do iframe */
+            z-index: 9999;
             text-align: center;
             border: 2px solid #005e6a;
             animation: subir 0.5s ease-out;
@@ -69,9 +69,29 @@
             background-color: #004049;
             transform: scale(0.98);
         }
+
+        /* --- ESTILO DO DEBUG (Será removido depois) --- */
+        #debug-log {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.85);
+            color: #00ff00; /* Verde Hacker */
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 10000;
+            pointer-events: none; /* Permite clicar através dele */
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
+
+    <div id="debug-log">Iniciando logs do sistema...</div>
 
     <iframe 
         src="https://dashboard-barbearia-lb.onrender.com"
@@ -85,55 +105,87 @@
     </div>
     
     <script>
+        // Função para escrever na tela
+        function log(msg) {
+            const el = document.getElementById('debug-log');
+            const time = new Date().toLocaleTimeString();
+            el.innerHTML += `<br>[${time}] ${msg}`;
+            console.log(`[${time}] ${msg}`);
+            // Rola para o final
+            el.scrollTop = el.scrollHeight;
+        }
+
         let novoWorker;
 
-        // Função auxiliar para mostrar a div
         function mostrarNotificacao() {
+            log('⚠️ CHAMADA: mostrarNotificacao() executada.');
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                log('Tentando registrar o Service Worker...');
+                
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('PWA registrado com sucesso.');
+                    log('✅ Service Worker registrado com sucesso.');
 
-                    // --- CORREÇÃO AQUI ---
-                    // 1. Verifica se JÁ existe um SW esperando (foi baixado antes da página carregar)
-                    if (reg.waiting) {
-                        novoWorker = reg.waiting;
-                        mostrarNotificacao();
+                    // --- 1. Verificação Inicial (Ao abrir o app) ---
+                    if (reg.controller) {
+                        log('ℹ️ Página já controlada por um SW.');
+                    } else {
+                        log('ℹ️ Página ainda não controlada (primeira visita?).');
                     }
 
-                    // 2. Detecta se um NOVO SW está sendo instalado agora
+                    if (reg.waiting) {
+                        log('🛑 ENCONTRADO SW EM ESPERA (WAITING)!');
+                        log('-> Exibindo botão de atualização agora.');
+                        novoWorker = reg.waiting;
+                        mostrarNotificacao();
+                    } else {
+                        log('ℹ️ Nenhum SW esperando no início.');
+                    }
+
+                    // --- 2. Monitoramento de Novas Atualizações ---
                     reg.addEventListener('updatefound', () => {
+                        log('🔄 UPDATEFOUND: O navegador encontrou um novo sw.js!');
                         novoWorker = reg.installing;
 
                         novoWorker.addEventListener('statechange', () => {
-                            // Quando o novo SW estiver pronto ("installed"), mostramos o aviso
+                            log(`Estado do novo SW mudou para: ${novoWorker.state}`);
+                            
                             if (novoWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                log('✅ Novo SW instalado e pronto. Esperando ativação.');
                                 mostrarNotificacao();
+                            } else if (novoWorker.state === 'activated') {
+                                log('🚀 Novo SW ativou imediatamente (sem esperar).');
                             }
                         });
                     });
+                }).catch(err => {
+                    log('❌ Erro ao registrar SW: ' + err);
                 });
             });
 
-            // Quando a atualização for aplicada, recarrega a página
+            // --- 3. Recarregamento da Página ---
             let refreshing;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
+                log('🔄 Controller mudou! Recarregando página...');
                 if (refreshing) return;
                 window.location.reload();
                 refreshing = true;
             });
+        } else {
+            log('❌ Navegador não suporta Service Worker.');
         }
 
-        // Clique do botão
+        // --- 4. Ação do Botão ---
         document.getElementById('btn-atualizar').addEventListener('click', () => {
+            log('Botão clicado. Enviando mensagem SKIP_WAITING...');
             if (novoWorker) {
-                // Manda o comando para o sw.js trocar a versão
                 novoWorker.postMessage({ type: 'SKIP_WAITING' });
-                // Esconde o aviso
                 document.getElementById('aviso-atualizacao').style.display = 'none';
+            } else {
+                log('❌ Erro: novoWorker não definido ao clicar.');
             }
         });
     </script>
