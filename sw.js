@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(NOME_CACHE)
       .then(cache => {
-        console.log('SW: Baixando arquivos da versão 8...');
+        console.log('SW: Baixando arquivos da versão 9...');
         return cache.addAll(ARQUIVOS_PARA_CACHE);
       })
   );
