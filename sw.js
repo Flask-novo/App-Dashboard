@@ -1,17 +1,17 @@
 // sw.js
 
-// --- CONFIGURAÇÃO (Versão 7) ---
-const NOME_CACHE = 'dashboard-lb-v7'; 
+// --- CONFIGURAÇÃO (Versão 8) ---
+const NOME_CACHE = 'dashboard-lb-v8'; 
 
-// Adicionei "?v=7" para forçar o navegador a baixar os ícones novos agora
+// Adicionei "?v=8" para combinar com o manifesto
 const ARQUIVOS_PARA_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icon_any_192.png?v=7',
-  './icon_maskable_192.png?v=7',
-  './icon_any_512.png?v=7',
-  './icon_maskable_512.png?v=7'
+  './icon_any_192.png?v=8',
+  './icon_maskable_192.png?v=8',
+  './icon_any_512.png?v=8',
+  './icon_maskable_512.png?v=8'
 ];
 
 // --- INSTALAÇÃO ---
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(NOME_CACHE)
       .then(cache => {
-        console.log('SW: Baixando arquivos da versão 7...');
+        console.log('SW: Baixando arquivos da versão 8...');
         return cache.addAll(ARQUIVOS_PARA_CACHE);
       })
   );
@@ -49,7 +49,7 @@ self.addEventListener('fetch', event => {
     // Tenta a rede primeiro (Network First)
     fetch(event.request).catch(() => {
       // Se estiver offline, busca no cache.
-      // "ignoreSearch: true" permite encontrar "icon.png?v=7" mesmo pedindo só "icon.png"
+      // ignora o "?v=8" se o navegador pedir sem ele
       return caches.match(event.request, {ignoreSearch: true});
     })
   );
