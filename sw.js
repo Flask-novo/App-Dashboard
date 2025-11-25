@@ -1,17 +1,17 @@
 // sw.js
 
 // --- CONFIGURAÇÃO (Versão 8) ---
-const NOME_CACHE = 'dashboard-lb-v8'; 
+const NOME_CACHE = 'dashboard-lb-v9'; 
 
 // Adicionei "?v=8" para combinar com o manifesto
 const ARQUIVOS_PARA_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icon_any_192.png?v=8',
-  './icon_maskable_192.png?v=8',
-  './icon_any_512.png?v=8',
-  './icon_maskable_512.png?v=8'
+  './icon_any_192.png?v=9',
+  './icon_maskable_192.png?v=9',
+  './icon_any_512.png?v=9',
+  './icon_maskable_512.png?v=9'
 ];
 
 // --- INSTALAÇÃO ---
