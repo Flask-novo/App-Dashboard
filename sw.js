@@ -2,7 +2,7 @@
 
 // --- CONFIGURAÇÃO ---
 // Mude 'v1' para 'v2' quando quiser forçar a atualização no celular do usuário
-const NOME_CACHE = 'dashboard-lb-v2'; 
+const NOME_CACHE = 'dashboard-lb-v3'; 
 
 // Lista exata dos arquivos do seu manifesto para garantir que baixam rápido
 const ARQUIVOS_PARA_CACHE = [
