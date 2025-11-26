@@ -65,8 +65,8 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* --- 2. Estilo do Aviso de Reinstalação --- */
-        #aviso-reinstalacao {
+        /* --- 2. Estilo dos Modais (Fundo Escuro) --- */
+        .fundo-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -78,29 +78,45 @@
             color: white;
         }
 
-        .modal-reinstalacao {
+        .caixa-modal {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 85%;
-            max-width: 320px;
+            max-width: 340px;
             text-align: center;
-        }
-
-        .passo-a-passo {
             background: #222;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: left;
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.6;
+            padding: 25px;
+            border-radius: 15px;
             border: 1px solid #444;
         }
 
-        /* Botão Principal (Laranja) */
-        #btn-entendi {
+        /* Títulos e Textos */
+        .titulo-modal {
+            color: #ff9800;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .texto-instrucao {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #ddd;
+            text-align: left;
+        }
+        
+        .destaque {
+            color: #fff;
+            font-weight: bold;
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Botões */
+        .btn-principal {
             background: #ff9800;
             color: #000;
             border: none;
@@ -110,11 +126,10 @@
             cursor: pointer;
             font-size: 14px;
             width: 100%;
-            margin-bottom: 15px; /* Espaço para o botão de baixo */
+            margin-bottom: 10px;
         }
 
-        /* NOVO: Botão Secundário (Texto simples) */
-        #btn-nao-mostrar {
+        .btn-link {
             background: transparent;
             color: #bbb;
             border: none;
@@ -123,6 +138,14 @@
             font-size: 13px;
             text-decoration: underline;
         }
+
+        /* Ícone Grande */
+        .icone-emoji {
+            font-size: 40px; 
+            margin-bottom: 10px; 
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -138,43 +161,60 @@
         <button id="btn-atualizar">ATUALIZAR APP</button>
     </div>
 
-    <div id="aviso-reinstalacao">
-        <div class="modal-reinstalacao">
-            <div style="font-size: 50px; margin-bottom: 15px;">📲</div>
-            <h3 style="margin-bottom: 10px; color: #ff9800;">Novo Ícone Disponível!</h3>
+    <div id="aviso-reinstalacao" class="fundo-modal">
+        <div class="caixa-modal">
+            <span class="icone-emoji">📲</span>
+            <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
-            <p style="font-size: 14px; opacity: 0.9; margin-bottom: 20px;">
-                Atualizámos a nossa marca. Para ver o novo ícone na sua tela inicial:
-            </p>
-
-            <div class="passo-a-passo">
+            <div class="texto-instrucao">
                 <p>1. Saia deste aplicativo.</p>
-                <p>2. Na tela do celular, <strong>segure o dedo</strong> sobre o nosso ícone antigo.</p>
+                <p>2. Na tela do celular, segure o dedo sobre o ícone antigo.</p>
                 <p>3. Clique em <strong>Desinstalar</strong> 🗑️.</p>
                 <p>4. Volte ao site e instale o novo!</p>
             </div>
 
-            <button id="btn-entendi">Vou fazer agora</button>
+            <button id="btn-entendi-reinstall" class="btn-principal">Vou fazer agora</button>
+            <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
+        </div>
+    </div>
+
+    <div id="tutorial-instalacao" class="fundo-modal">
+        <div class="caixa-modal">
+            <span class="icone-emoji">⬇️</span>
+            <h3 class="titulo-modal">Instale o App</h3>
             
-            <button id="btn-nao-mostrar">Não mostrar novamente</button>
+            <div id="msg-android" style="display:none;" class="texto-instrucao">
+                Para uma melhor experiência:<br><br>
+                1. Toque nos <strong>3 pontinhos</strong> <span class="destaque">⋮</span> no canto superior.<br>
+                2. Selecione <span class="destaque">Adicionar à Tela Inicial</span> ou <span class="destaque">Instalar Aplicativo</span>.
+            </div>
+
+            <div id="msg-ios" style="display:none;" class="texto-instrucao">
+                Para instalar no seu iPhone:<br><br>
+                1. Toque no botão <strong>Compartilhar</strong> <span class="destaque">⎋</span> na barra inferior.<br>
+                2. Role para cima e escolha <span class="destaque">Adicionar à Tela de Início</span>.
+            </div>
+
+            <button id="btn-fechar-tutorial" class="btn-principal">Entendi, vou instalar</button>
+            <button id="btn-nao-mostrar-tutorial" class="btn-link">Não mostrar novamente</button>
         </div>
     </div>
     
     <script>
         // =========================================================
-        //  CONFIGURAÇÃO DO DONO
+        //  CONFIGURAÇÕES
         // =========================================================
-        // Mude para TRUE quando quiser avisar sobre o novo ícone
-        const MOSTRAR_AVISO_REINSTALACAO = true; 
+        const MOSTRAR_AVISO_REINSTALACAO = true; // Para quem já tem o app
+        const MOSTRAR_TUTORIAL_INSTALACAO = true; // Para quem está no navegador
         // =========================================================
 
         let novoWorker;
 
+        // --- 1. Lógica SW (Atualização) ---
         function mostrarNotificacaoAtualizacao() {
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
 
-        // --- Lógica do PWA e Service Worker ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
@@ -201,7 +241,6 @@
             });
         }
 
-        // --- Botão "Atualizar App" (SW) ---
         document.getElementById('btn-atualizar').addEventListener('click', () => {
             if (novoWorker) {
                 const btn = document.getElementById('btn-atualizar');
@@ -212,33 +251,64 @@
         });
 
         // =========================================================
-        //  LÓGICA DO AVISO DE REINSTALAÇÃO (ÍCONE NOVO)
+        //  2. LÓGICA DE DETECÇÃO (App Instalado vs Navegador)
         // =========================================================
         
-        if (MOSTRAR_AVISO_REINSTALACAO) {
-            // Verifica se está instalado como App
-            const isPWA = window.matchMedia('(display-mode: standalone)').matches;
-            
-            // Verifica se o usuário marcou "Não mostrar novamente"
-            const bloqueadoPeloUsuario = localStorage.getItem('reinstalacao_bloqueada');
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
 
-            // Só mostra se for PWA e o usuário NÃO tiver bloqueado
-            if (isPWA && !bloqueadoPeloUsuario) {
-                 document.getElementById('aviso-reinstalacao').style.display = 'block';
+        // --- Cenario A: Usuário JÁ tem o App (Verifica Reinstalação) ---
+        if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada');
+            if (!bloqueadoReinstall) {
+                document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
         }
 
-        // Botão 1: "Vou fazer agora"
-        // Ação: Apenas fecha o modal. Se ele recarregar o app, o aviso volta (lembrete).
-        document.getElementById('btn-entendi').addEventListener('click', () => {
+        // --- Cenario B: Usuário está no Navegador (Mostra Tutorial) ---
+        if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
+            
+            // Verifica se o usuário já pediu para não ver o tutorial
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado');
+            
+            if (!bloqueadoTutorial) {
+                const modalTutorial = document.getElementById('tutorial-instalacao');
+                const txtAndroid = document.getElementById('msg-android');
+                const txtIOS = document.getElementById('msg-ios');
+
+                // Decide qual mensagem mostrar baseado no aparelho
+                if (isIOS) {
+                    txtIOS.style.display = 'block';
+                    modalTutorial.style.display = 'block';
+                } else if (isAndroid) {
+                    txtAndroid.style.display = 'block';
+                    modalTutorial.style.display = 'block';
+                } 
+                // Se for PC, não mostra nada (para não atrapalhar)
+            }
+        }
+
+        // =========================================================
+        //  3. BOTÕES (Fechar Modais)
+        // =========================================================
+
+        // --- Botoes do Aviso de Reinstalação (PWA) ---
+        document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
-
-        // Botão 2: "Não mostrar novamente"
-        // Ação: Fecha o modal E salva no banco de dados do navegador para não voltar.
-        document.getElementById('btn-nao-mostrar').addEventListener('click', () => {
+        document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
             localStorage.setItem('reinstalacao_bloqueada', 'true');
+        });
+
+        // --- Botoes do Tutorial de Instalação (Navegador) ---
+        document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
+            document.getElementById('tutorial-instalacao').style.display = 'none';
+        });
+        document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
+            document.getElementById('tutorial-instalacao').style.display = 'none';
+            localStorage.setItem('tutorial_bloqueado', 'true');
         });
 
     </script>
