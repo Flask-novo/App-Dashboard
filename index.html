@@ -90,6 +90,8 @@
             padding: 25px;
             border-radius: 15px;
             border: 1px solid #444;
+            max-height: 90vh; /* Evita que corte em telas pequenas */
+            overflow-y: auto; /* Rolagem se necessário */
         }
 
         .titulo-modal {
@@ -133,7 +135,7 @@
             width: 100%;
             font-size: 12px;
             outline: none;
-            text-overflow: ellipsis; /* Corta o texto se for longo */
+            text-overflow: ellipsis;
         }
 
         .btn-copiar {
@@ -148,7 +150,9 @@
             white-space: nowrap;
         }
 
-        /* Botões Principais */
+        /* --- BOTÕES --- */
+        
+        /* Botão Laranja (Ação Principal: Trocar) */
         .btn-principal {
             background: #ff9800;
             color: #000;
@@ -162,13 +166,28 @@
             margin-bottom: 10px;
         }
 
+        /* NOVO: Botão Verde (Ação Secundária: Já fiz) */
+        .btn-sucesso {
+            background: #2e7d32; /* Verde escuro elegante */
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        /* Link (Ignorar) */
         .btn-link {
             background: transparent;
-            color: #bbb;
+            color: #888;
             border: none;
             padding: 10px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             text-decoration: underline;
         }
 
@@ -208,7 +227,11 @@
                 <input type="text" class="input-link" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar" readonly>
                 <button class="btn-copiar" id="btn-acao-copiar">COPIAR</button>
             </div>
-            <button id="btn-entendi-reinstall" class="btn-principal">Entendi, fechar aviso</button>
+
+            <button id="btn-entendi-reinstall" class="btn-principal">Entendi, vou trocar</button>
+            
+            <button id="btn-ja-instalei" class="btn-sucesso">Já instalei a nova versão</button>
+
             <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
         </div>
     </div>
@@ -326,17 +349,13 @@
         // Função de Copiar Link
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
-            
-            // Seleciona o texto e copia
             inputLink.select();
-            inputLink.setSelectionRange(0, 99999); // Para mobile
+            inputLink.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(inputLink.value).then(() => {
-                // Feedback visual
                 const btn = document.getElementById('btn-acao-copiar');
                 const textoOriginal = btn.innerText;
                 btn.innerText = "COPIADO!";
-                btn.style.backgroundColor = "#4CAF50"; // Verde
-                
+                btn.style.backgroundColor = "#4CAF50"; 
                 setTimeout(() => {
                     btn.innerText = textoOriginal;
                     btn.style.backgroundColor = "#555";
@@ -344,16 +363,26 @@
             });
         });
 
-        // Botoes Aviso Reinstalação
+        // --- Botões Aviso Reinstalação (PWA) ---
+        
+        // 1. Entendi (Fecha mas volta depois)
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
+
+        // 2. Já instalei (Fecha e NUNCA mais volta - igual ao não mostrar)
+        document.getElementById('btn-ja-instalei').addEventListener('click', () => {
+            document.getElementById('aviso-reinstalacao').style.display = 'none';
+            localStorage.setItem('reinstalacao_bloqueada', 'true');
+        });
+
+        // 3. Não mostrar novamente (Fecha e NUNCA mais volta)
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
             localStorage.setItem('reinstalacao_bloqueada', 'true');
         });
 
-        // Botoes Tutorial Instalação
+        // --- Botões Tutorial Instalação (Navegador) ---
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
         });
