@@ -6,6 +6,7 @@
     <title>Dashboard LB</title>
     <link rel="manifest" href="manifest.json">
     <style>
+        /* --- Estilos Gerais --- */
         body, html {
             margin: 0;
             padding: 0;
@@ -20,7 +21,7 @@
             border: none;
         }
 
-        /* --- Estilo da Caixa de Notificação --- */
+        /* --- 1. Estilo da Caixa de Atualização (SW) --- */
         #aviso-atualizacao {
             display: none;
             position: fixed;
@@ -38,11 +39,6 @@
             text-align: center;
             border: 2px solid #005e6a;
             animation: subir 0.5s ease-out;
-        }
-
-        @keyframes subir {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         #aviso-atualizacao p {
@@ -64,9 +60,68 @@
             width: 100%;
         }
 
-        #btn-atualizar:active {
-            background-color: #004049;
-            transform: scale(0.98);
+        @keyframes subir {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- 2. Estilo do Aviso de Reinstalação --- */
+        #aviso-reinstalacao {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.92);
+            z-index: 20000;
+            color: white;
+        }
+
+        .modal-reinstalacao {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .passo-a-passo {
+            background: #222;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            border: 1px solid #444;
+        }
+
+        /* Botão Principal (Laranja) */
+        #btn-entendi {
+            background: #ff9800;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 15px; /* Espaço para o botão de baixo */
+        }
+
+        /* NOVO: Botão Secundário (Texto simples) */
+        #btn-nao-mostrar {
+            background: transparent;
+            color: #bbb;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -79,41 +134,65 @@
     </iframe>
     
     <div id="aviso-atualizacao">
-        <p>Nova atualização disponível!</p>
+        <p>Nova versão disponível!</p>
         <button id="btn-atualizar">ATUALIZAR APP</button>
+    </div>
+
+    <div id="aviso-reinstalacao">
+        <div class="modal-reinstalacao">
+            <div style="font-size: 50px; margin-bottom: 15px;">📲</div>
+            <h3 style="margin-bottom: 10px; color: #ff9800;">Novo Ícone Disponível!</h3>
+            
+            <p style="font-size: 14px; opacity: 0.9; margin-bottom: 20px;">
+                Atualizámos a nossa marca. Para ver o novo ícone na sua tela inicial:
+            </p>
+
+            <div class="passo-a-passo">
+                <p>1. Saia deste aplicativo.</p>
+                <p>2. Na tela do celular, <strong>segure o dedo</strong> sobre o nosso ícone antigo.</p>
+                <p>3. Clique em <strong>Desinstalar</strong> 🗑️.</p>
+                <p>4. Volte ao site e instale o novo!</p>
+            </div>
+
+            <button id="btn-entendi">Vou fazer agora</button>
+            
+            <button id="btn-nao-mostrar">Não mostrar novamente</button>
+        </div>
     </div>
     
     <script>
+        // =========================================================
+        //  CONFIGURAÇÃO DO DONO
+        // =========================================================
+        // Mude para TRUE quando quiser avisar sobre o novo ícone
+        const MOSTRAR_AVISO_REINSTALACAO = true; 
+        // =========================================================
+
         let novoWorker;
 
-        function mostrarNotificacao() {
+        function mostrarNotificacaoAtualizacao() {
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
 
+        // --- Lógica do PWA e Service Worker ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    
-                    // 1. Verifica se já baixou algo em background
                     if (reg.waiting) {
                         novoWorker = reg.waiting;
-                        mostrarNotificacao();
+                        mostrarNotificacaoAtualizacao();
                     }
-
-                    // 2. Verifica se está baixando algo agora
                     reg.addEventListener('updatefound', () => {
                         novoWorker = reg.installing;
-
                         novoWorker.addEventListener('statechange', () => {
                             if (novoWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                mostrarNotificacao();
+                                mostrarNotificacaoAtualizacao();
                             }
                         });
                     });
                 });
             });
 
-            // 3. Recarrega a página ao atualizar
             let refreshing;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (refreshing) return;
@@ -122,13 +201,46 @@
             });
         }
 
-        // 4. Clique do botão
+        // --- Botão "Atualizar App" (SW) ---
         document.getElementById('btn-atualizar').addEventListener('click', () => {
             if (novoWorker) {
+                const btn = document.getElementById('btn-atualizar');
+                btn.innerText = "ATUALIZANDO...";
+                btn.style.backgroundColor = "#ccc";
                 novoWorker.postMessage({ type: 'SKIP_WAITING' });
-                document.getElementById('aviso-atualizacao').style.display = 'none';
             }
         });
+
+        // =========================================================
+        //  LÓGICA DO AVISO DE REINSTALAÇÃO (ÍCONE NOVO)
+        // =========================================================
+        
+        if (MOSTRAR_AVISO_REINSTALACAO) {
+            // Verifica se está instalado como App
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+            
+            // Verifica se o usuário marcou "Não mostrar novamente"
+            const bloqueadoPeloUsuario = localStorage.getItem('reinstalacao_bloqueada');
+
+            // Só mostra se for PWA e o usuário NÃO tiver bloqueado
+            if (isPWA && !bloqueadoPeloUsuario) {
+                 document.getElementById('aviso-reinstalacao').style.display = 'block';
+            }
+        }
+
+        // Botão 1: "Vou fazer agora"
+        // Ação: Apenas fecha o modal. Se ele recarregar o app, o aviso volta (lembrete).
+        document.getElementById('btn-entendi').addEventListener('click', () => {
+            document.getElementById('aviso-reinstalacao').style.display = 'none';
+        });
+
+        // Botão 2: "Não mostrar novamente"
+        // Ação: Fecha o modal E salva no banco de dados do navegador para não voltar.
+        document.getElementById('btn-nao-mostrar').addEventListener('click', () => {
+            document.getElementById('aviso-reinstalacao').style.display = 'none';
+            localStorage.setItem('reinstalacao_bloqueada', 'true');
+        });
+
     </script>
 </body>
 </html>
