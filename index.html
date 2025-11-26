@@ -92,7 +92,6 @@
             border: 1px solid #444;
         }
 
-        /* Títulos e Textos */
         .titulo-modal {
             color: #ff9800;
             margin-bottom: 15px;
@@ -115,7 +114,41 @@
             border-radius: 4px;
         }
 
-        /* Botões */
+        /* --- Estilo da Caixa de Link para Copiar --- */
+        .box-link {
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #555;
+        }
+
+        .input-link {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            font-size: 12px;
+            outline: none;
+            text-overflow: ellipsis; /* Corta o texto se for longo */
+        }
+
+        .btn-copiar {
+            background: #555;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Botões Principais */
         .btn-principal {
             background: #ff9800;
             color: #000;
@@ -139,7 +172,6 @@
             text-decoration: underline;
         }
 
-        /* Ícone Grande */
         .icone-emoji {
             font-size: 40px; 
             margin-bottom: 10px; 
@@ -167,13 +199,16 @@
             <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
             <div class="texto-instrucao">
-                <p>1. Saia deste aplicativo.</p>
-                <p>2. Na tela do celular, segure o dedo sobre o ícone antigo.</p>
-                <p>3. Clique em <strong>Desinstalar</strong> 🗑️.</p>
-                <p>4. Volte ao site e instale o novo!</p>
+                <p>1. <strong>Copie o link abaixo</strong>.</p>
+                <p>2. Saia e desinstale este app 🗑️.</p>
+                <p>3. Vá no navegador, cole o link e instale o novo!</p>
             </div>
 
-            <button id="btn-entendi-reinstall" class="btn-principal">Vou fazer agora</button>
+            <div class="box-link">
+                <input type="text" class="input-link" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar" readonly>
+                <button class="btn-copiar" id="btn-acao-copiar">COPIAR</button>
+            </div>
+            <button id="btn-entendi-reinstall" class="btn-principal">Entendi, fechar aviso</button>
             <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
         </div>
     </div>
@@ -204,8 +239,8 @@
         // =========================================================
         //  CONFIGURAÇÕES
         // =========================================================
-        const MOSTRAR_AVISO_REINSTALACAO = true; // Para quem já tem o app
-        const MOSTRAR_TUTORIAL_INSTALACAO = true; // Para quem está no navegador
+        const MOSTRAR_AVISO_REINSTALACAO = true; 
+        const MOSTRAR_TUTORIAL_INSTALACAO = true; 
         // =========================================================
 
         let novoWorker;
@@ -268,16 +303,12 @@
 
         // --- Cenario B: Usuário está no Navegador (Mostra Tutorial) ---
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            
-            // Verifica se o usuário já pediu para não ver o tutorial
             const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado');
-            
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
                 const txtAndroid = document.getElementById('msg-android');
                 const txtIOS = document.getElementById('msg-ios');
 
-                // Decide qual mensagem mostrar baseado no aparelho
                 if (isIOS) {
                     txtIOS.style.display = 'block';
                     modalTutorial.style.display = 'block';
@@ -285,15 +316,35 @@
                     txtAndroid.style.display = 'block';
                     modalTutorial.style.display = 'block';
                 } 
-                // Se for PC, não mostra nada (para não atrapalhar)
             }
         }
 
         // =========================================================
-        //  3. BOTÕES (Fechar Modais)
+        //  3. BOTÕES E AÇÕES
         // =========================================================
 
-        // --- Botoes do Aviso de Reinstalação (PWA) ---
+        // Função de Copiar Link
+        document.getElementById('btn-acao-copiar').addEventListener('click', function() {
+            const inputLink = document.getElementById('link-para-copiar');
+            
+            // Seleciona o texto e copia
+            inputLink.select();
+            inputLink.setSelectionRange(0, 99999); // Para mobile
+            navigator.clipboard.writeText(inputLink.value).then(() => {
+                // Feedback visual
+                const btn = document.getElementById('btn-acao-copiar');
+                const textoOriginal = btn.innerText;
+                btn.innerText = "COPIADO!";
+                btn.style.backgroundColor = "#4CAF50"; // Verde
+                
+                setTimeout(() => {
+                    btn.innerText = textoOriginal;
+                    btn.style.backgroundColor = "#555";
+                }, 2000);
+            });
+        });
+
+        // Botoes Aviso Reinstalação
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
@@ -302,7 +353,7 @@
             localStorage.setItem('reinstalacao_bloqueada', 'true');
         });
 
-        // --- Botoes do Tutorial de Instalação (Navegador) ---
+        // Botoes Tutorial Instalação
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
         });
