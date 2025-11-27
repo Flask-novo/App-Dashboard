@@ -12,7 +12,7 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-color: #005e6a;
+            background-color: #005e6a; /* Cor do tema do Dashboard */
             font-family: sans-serif;
         }
         iframe {
@@ -65,7 +65,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* --- 2. Estilo dos Modais (Fundo Escuro) --- */
+        /* --- 2. Estilo dos Modais --- */
         .fundo-modal {
             display: none;
             position: fixed;
@@ -90,8 +90,8 @@
             padding: 25px;
             border-radius: 15px;
             border: 1px solid #444;
-            max-height: 90vh; /* Evita que corte em telas pequenas */
-            overflow-y: auto; /* Rolagem se necessário */
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .titulo-modal {
@@ -116,7 +116,7 @@
             border-radius: 4px;
         }
 
-        /* --- Estilo da Caixa de Link para Copiar --- */
+        /* --- Estilo da Caixa de Link --- */
         .box-link {
             background: #333;
             padding: 10px;
@@ -151,8 +151,6 @@
         }
 
         /* --- BOTÕES --- */
-        
-        /* Botão Laranja (Ação Principal: Trocar) */
         .btn-principal {
             background: #ff9800;
             color: #000;
@@ -166,9 +164,8 @@
             margin-bottom: 10px;
         }
 
-        /* NOVO: Botão Verde (Ação Secundária: Já fiz) */
         .btn-sucesso {
-            background: #2e7d32; /* Verde escuro elegante */
+            background: #2e7d32;
             color: #fff;
             border: none;
             padding: 12px 30px;
@@ -179,8 +176,29 @@
             width: 100%;
             margin-bottom: 10px;
         }
+        
+        /* Botão Mágico de Instalação Direta */
+        .btn-magic {
+            background: #007bff; /* Azul Google */
+            color: #fff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
 
-        /* Link (Ignorar) */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         .btn-link {
             background: transparent;
             color: #888;
@@ -196,7 +214,6 @@
             margin-bottom: 10px; 
             display: block;
         }
-
     </style>
 </head>
 <body>
@@ -204,7 +221,7 @@
     <iframe 
         src="https://dashboard-barbearia-lb.onrender.com"
         allow="camera; microphone; geolocation; payment; fullscreen"
-        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-downloads">
+        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-downloads allow-top-navigation">
     </iframe>
     
     <div id="aviso-atualizacao">
@@ -229,9 +246,7 @@
             </div>
 
             <button id="btn-entendi-reinstall" class="btn-principal">Entendi, vou trocar</button>
-            
             <button id="btn-ja-instalei" class="btn-sucesso">Já instalei a nova versão</button>
-
             <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
         </div>
     </div>
@@ -241,6 +256,11 @@
             <span class="icone-emoji">⬇️</span>
             <h3 class="titulo-modal">Instale o App</h3>
             
+            <div id="area-botao-magic" style="display: none;">
+                <p class="texto-instrucao" style="text-align: center; margin-bottom: 10px;">Instalação rápida disponível:</p>
+                <button id="btn-magic-install" class="btn-magic">📲 INSTALAR AGORA</button>
+            </div>
+
             <div id="msg-android" style="display:none;" class="texto-instrucao">
                 Para uma melhor experiência:<br><br>
                 1. Toque nos <strong>3 pontinhos</strong> <span class="destaque">⋮</span> no canto superior.<br>
@@ -267,8 +287,9 @@
         // =========================================================
 
         let novoWorker;
+        let deferredPrompt; 
 
-        // --- 1. Lógica SW (Atualização) ---
+        // --- 1. SW (Update) ---
         function mostrarNotificacaoAtualizacao() {
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
@@ -308,15 +329,34 @@
             }
         });
 
+        // --- 2. Captura do Evento "Instalar" (Android) ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('area-botao-magic').style.display = 'block';
+            document.getElementById('msg-android').style.display = 'none';
+        });
+
+        document.getElementById('btn-magic-install').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt(); 
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredPrompt = null;
+                    document.getElementById('tutorial-instalacao').style.display = 'none';
+                }
+            }
+        });
+
         // =========================================================
-        //  2. LÓGICA DE DETECÇÃO (App Instalado vs Navegador)
+        //  LÓGICA DE DETECÇÃO (App vs Navegador)
         // =========================================================
         
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isAndroid = /Android/i.test(navigator.userAgent);
 
-        // --- Cenario A: Usuário JÁ tem o App (Verifica Reinstalação) ---
+        // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
             const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada');
             if (!bloqueadoReinstall) {
@@ -324,7 +364,7 @@
             }
         }
 
-        // --- Cenario B: Usuário está no Navegador (Mostra Tutorial) ---
+        // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
             const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado');
             if (!bloqueadoTutorial) {
@@ -336,17 +376,13 @@
                     txtIOS.style.display = 'block';
                     modalTutorial.style.display = 'block';
                 } else if (isAndroid) {
-                    txtAndroid.style.display = 'block';
+                    txtAndroid.style.display = 'block'; 
                     modalTutorial.style.display = 'block';
                 } 
             }
         }
 
-        // =========================================================
-        //  3. BOTÕES E AÇÕES
-        // =========================================================
-
-        // Função de Copiar Link
+        // --- Copiar Link ---
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
             inputLink.select();
@@ -355,7 +391,7 @@
                 const btn = document.getElementById('btn-acao-copiar');
                 const textoOriginal = btn.innerText;
                 btn.innerText = "COPIADO!";
-                btn.style.backgroundColor = "#4CAF50"; 
+                btn.style.backgroundColor = "#2e7d32"; 
                 setTimeout(() => {
                     btn.innerText = textoOriginal;
                     btn.style.backgroundColor = "#555";
@@ -363,26 +399,19 @@
             });
         });
 
-        // --- Botões Aviso Reinstalação (PWA) ---
-        
-        // 1. Entendi (Fecha mas volta depois)
+        // --- Botões (Fechar/Salvar) ---
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
-
-        // 2. Já instalei (Fecha e NUNCA mais volta - igual ao não mostrar)
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
             localStorage.setItem('reinstalacao_bloqueada', 'true');
         });
-
-        // 3. Não mostrar novamente (Fecha e NUNCA mais volta)
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
             localStorage.setItem('reinstalacao_bloqueada', 'true');
         });
 
-        // --- Botões Tutorial Instalação (Navegador) ---
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
         });
