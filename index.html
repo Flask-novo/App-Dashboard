@@ -177,7 +177,7 @@
             margin-bottom: 10px;
         }
 
-        /* Botão Azul (Link disfarçado) */
+        /* Botão Azul (Link do Google) */
         .btn-navegador-externo {
             background: #007bff; /* Azul */
             color: #fff;
@@ -257,7 +257,7 @@
             
             <input type="hidden" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar">
             
-            <a href="https://tinyurl.com/5eddrpwe" target="_blank" class="btn-navegador-externo">
+            <a href="https://www.google.com/url?q=https://flask-novo.github.io/App-Dashboard/" target="_blank" class="btn-navegador-externo">
                 Abrir Site no Navegador 🌐
             </a>
 
@@ -346,8 +346,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // Nota: v9 para resetar e testar
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v9');
+            // Nota: v10 para resetar e testar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v10');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -355,7 +355,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v9'); // v9
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v10'); // v10
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -393,11 +393,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v9', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v10', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v9', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v10', 'true');
         });
 
         // Tutorial Navegador
@@ -406,7 +406,7 @@
         });
         document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v9', 'true');
+            localStorage.setItem('tutorial_bloqueado_v10', 'true');
         });
 
     </script>
