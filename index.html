@@ -21,7 +21,7 @@
             border: none;
         }
 
-        /* --- 1. Aviso de Atualização (SW) --- */
+        /* --- 1. Aviso UPDATE SW --- */
         #aviso-atualizacao {
             display: none;
             position: fixed;
@@ -119,9 +119,9 @@
         /* --- Estilo da Caixa de Link --- */
         .box-link {
             background: #333;
-            padding: 10px;
+            padding: 5px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -152,7 +152,7 @@
 
         /* --- BOTÕES --- */
         .btn-principal {
-            background: #ff9800;
+            background: #ff9800; /* Laranja */
             color: #000;
             border: none;
             padding: 12px 30px;
@@ -165,7 +165,43 @@
         }
 
         .btn-sucesso {
-            background: #2e7d32;
+            background: #2e7d32; /* Verde */
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        /* NOVO: Botão Azul para abrir navegador */
+        .btn-navegador-externo {
+            background: #007bff; /* Azul */
+            color: #fff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+            margin-bottom: 20px; /* Destaque */
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        /* Botão Cinza para apenas navegar */
+        .btn-navegar {
+            background: #555;
             color: #fff;
             border: none;
             padding: 12px 30px;
@@ -213,13 +249,17 @@
             <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
             <div class="texto-instrucao">
-                <p>1. <strong>Copie o link abaixo</strong>.</p>
-                <p>2. Saia e desinstale este app 🗑️.</p>
-                <p>3. Vá no navegador, cole o link e instale o novo!</p>
+                <p>1. Clique no botão azul para abrir o navegador.</p>
+                <p>2. Desinstale este app antigo 🗑️.</p>
+                <p>3. Instale o novo quando o site abrir!</p>
             </div>
+            
+            <input type="hidden" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar">
+            
+            <button id="btn-abrir-navegador" class="btn-navegador-externo">Abrir Site no Navegador 🌐</button>
 
             <div class="box-link">
-                <input type="text" class="input-link" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar" readonly>
+                <span style="font-size: 12px; color: #ccc; flex-grow: 1; text-align: left;">Opção B: Copiar link</span>
                 <button class="btn-copiar" id="btn-acao-copiar">COPIAR</button>
             </div>
 
@@ -247,13 +287,16 @@
             </div>
 
             <button id="btn-fechar-tutorial" class="btn-principal">Entendi, vou instalar</button>
-            <button id="btn-nao-mostrar-tutorial" class="btn-link">Não mostrar novamente</button>
+            <button id="btn-apenas-navegar" class="btn-navegar">Apenas navegar no site</button>
         </div>
     </div>
     
     <script>
         const MOSTRAR_AVISO_REINSTALACAO = true; 
         const MOSTRAR_TUTORIAL_INSTALACAO = true; 
+        
+        // LINK PARA ABRIR NO NAVEGADOR
+        const URL_SITE = "https://flask-novo.github.io/App-Dashboard/";
 
         let novoWorker;
 
@@ -297,14 +340,14 @@
             }
         });
 
-        // 2. Lógica de Detecção Simplificada e Robusta
+        // 2. Lógica de Detecção
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // Nota: Mudei para _v3 para garantir que apareça nos seus testes
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v3');
+            // v6 para resetar e você testar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v6');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -312,30 +355,33 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v3');
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v6'); // v6
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
                 const txtAndroid = document.getElementById('msg-android');
                 const txtIOS = document.getElementById('msg-ios');
 
-                // Abre o modal de qualquer jeito
                 modalTutorial.style.display = 'block';
 
                 if (isIOS) {
                     txtIOS.style.display = 'block';
                 } else {
-                    // Se não for iPhone, mostra o tutorial de 3 pontinhos (Serve para Android e PC)
                     txtAndroid.style.display = 'block'; 
                 }
             }
         }
 
-        // --- Copiar Link ---
+        // --- AÇÃO: ABRIR NO NAVEGADOR (Botão Azul) ---
+        document.getElementById('btn-abrir-navegador').addEventListener('click', function() {
+            // Abre o site numa nova aba (sai do PWA)
+            window.open(URL_SITE, '_blank');
+        });
+
+        // --- AÇÃO: COPIAR (Backup) ---
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
-            inputLink.select();
-            inputLink.setSelectionRange(0, 99999);
+            // Como é hidden, usamos writeText direto
             navigator.clipboard.writeText(inputLink.value).then(() => {
                 const btn = document.getElementById('btn-acao-copiar');
                 const textoOriginal = btn.innerText;
@@ -348,25 +394,26 @@
             });
         });
 
-        // --- Botões ---
+        // --- Botões Padrão ---
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v3', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v6', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v3', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v6', 'true');
         });
 
+        // Tutorial Navegador
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
         });
-        document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
+        document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v3', 'true');
+            localStorage.setItem('tutorial_bloqueado_v6', 'true');
         });
 
     </script>
