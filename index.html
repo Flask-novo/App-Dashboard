@@ -138,7 +138,7 @@
             margin: 0 auto;
         }
 
-        /* BOTÃO COPIAR GIGANTE (ESTRELA DA TELA) */
+        /* BOTÃO COPIAR GIGANTE */
         .btn-copiar-gigante {
             background: #007bff; /* Azul forte */
             color: #fff;
@@ -240,10 +240,6 @@
             <span class="icone-emoji">📲</span>
             <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
-            <div class="texto-instrucao" style="text-align: center;">
-                <p style="margin-bottom: 5px;">O Android não atualiza o ícone sozinho.</p>
-            </div>
-
             <div class="box-link">
                 <button class="btn-copiar-gigante" id="btn-acao-copiar">
                     <span>COPIAR LINK 📋</span>
@@ -282,6 +278,7 @@
             </div>
 
             <button id="btn-fechar-tutorial" class="btn-principal">Entendi, vou instalar</button>
+            
             <button id="btn-nao-mostrar-tutorial" class="btn-cinza-outline">Não mostrar novamente</button>
         </div>
     </div>
@@ -338,8 +335,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // v13 para resetar
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v13');
+            // v14 para resetar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v14');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -347,7 +344,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v13'); // v13
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v14'); // v14
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -394,11 +391,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v13', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v14', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v13', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v14', 'true');
         });
 
         // --- Botões Padrão (Navegador) ---
@@ -408,7 +405,7 @@
         document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
             // Salva na memória
-            localStorage.setItem('tutorial_bloqueado_v13', 'true');
+            localStorage.setItem('tutorial_bloqueado_v14', 'true');
         });
 
     </script>
