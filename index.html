@@ -177,17 +177,17 @@
             margin-bottom: 10px;
         }
 
-        /* NOVO: Link disfarçado de Botão Azul */
+        /* Botão Azul (Link disfarçado) */
         .btn-navegador-externo {
             background: #007bff; /* Azul */
             color: #fff;
-            text-decoration: none; /* Remove sublinhado de link */
-            display: block; /* Ocupa a linha toda */
+            text-decoration: none;
+            display: block;
             padding: 14px 30px;
             border-radius: 50px;
             font-weight: bold;
             font-size: 15px;
-            width: auto; /* Ajuste automático */
+            width: auto;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
             animation: pulse 2s infinite;
@@ -201,7 +201,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Botão Cinza */
         .btn-navegar {
             background: #555;
             color: #fff;
@@ -258,7 +257,7 @@
             
             <input type="hidden" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar">
             
-            <a href="https://flask-novo.github.io/App-Dashboard/" target="_blank" rel="noopener noreferrer" class="btn-navegador-externo">
+            <a href="https://tinyurl.com/5eddrpwe" target="_blank" class="btn-navegador-externo">
                 Abrir Site no Navegador 🌐
             </a>
 
@@ -347,8 +346,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // Nota: v7 para resetar testes
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v7');
+            // Nota: v9 para resetar e testar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v9');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -356,7 +355,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v7'); // v7
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v9'); // v9
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -373,7 +372,7 @@
             }
         }
 
-        // --- AÇÃO: COPIAR (Backup) ---
+        // --- AÇÃO: COPIAR ---
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
             navigator.clipboard.writeText(inputLink.value).then(() => {
@@ -394,11 +393,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v7', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v9', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v7', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v9', 'true');
         });
 
         // Tutorial Navegador
@@ -407,7 +406,7 @@
         });
         document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v7', 'true');
+            localStorage.setItem('tutorial_bloqueado_v9', 'true');
         });
 
     </script>
