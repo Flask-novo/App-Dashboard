@@ -119,35 +119,52 @@
         /* --- Estilo da Caixa de Link --- */
         .box-link {
             background: #333;
-            padding: 5px;
+            padding: 10px; /* Mais espaço */
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
             border: 1px solid #555;
+            flex-direction: column; /* Coluna para focar no botão */
         }
 
         .input-link {
             background: transparent;
-            border: none;
-            color: #fff;
-            width: 100%;
-            font-size: 12px;
+            border: 1px solid #444;
+            padding: 8px;
+            color: #bbb;
+            width: 90%;
+            font-size: 11px;
             outline: none;
-            text-overflow: ellipsis;
+            text-align: center;
+            border-radius: 4px;
+            margin-bottom: 5px;
         }
 
+        /* BOTÃO COPIAR GIGANTE */
         .btn-copiar {
-            background: #555;
+            background: #007bff; /* Azul Google */
             color: #fff;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 11px;
+            padding: 12px 0;
+            border-radius: 50px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            white-space: nowrap;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         /* --- BOTÕES --- */
@@ -175,30 +192,6 @@
             font-size: 14px;
             width: 100%;
             margin-bottom: 10px;
-        }
-
-        /* Botão Azul (Link do Google) */
-        .btn-navegador-externo {
-            background: #007bff; /* Azul */
-            color: #fff;
-            text-decoration: none;
-            display: block;
-            padding: 14px 30px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 15px;
-            width: auto;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-            animation: pulse 2s infinite;
-            border: none;
-            cursor: pointer;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
         }
 
         .btn-navegar {
@@ -249,24 +242,26 @@
             <span class="icone-emoji">📲</span>
             <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
-            <div class="texto-instrucao">
-                <p>1. Clique no botão azul para abrir o navegador.</p>
-                <p>2. Desinstale este app antigo 🗑️.</p>
-                <p>3. Instale o novo quando o site abrir!</p>
+            <div class="texto-instrucao" style="text-align: center;">
+                <p>O Android impede a abertura direta do navegador. Por favor:</p>
             </div>
             
-            <input type="hidden" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar">
+            <div class="box-link" style="border: none; background: transparent; padding: 0;">
+                
+                <button class="btn-copiar" id="btn-acao-copiar">
+                    <span>1. COPIAR LINK 📋</span>
+                </button>
+                
+                <input type="text" class="input-link" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar" readonly>
             
-            <a href="https://www.google.com/url?q=https://flask-novo.github.io/App-Dashboard/" target="_blank" class="btn-navegador-externo">
-                Abrir Site no Navegador 🌐
-            </a>
-
-            <div class="box-link">
-                <span style="font-size: 12px; color: #ccc; flex-grow: 1; text-align: left;">Opção B: Copiar link</span>
-                <button class="btn-copiar" id="btn-acao-copiar">COPIAR</button>
             </div>
 
-            <button id="btn-entendi-reinstall" class="btn-principal">Entendi, vou trocar</button>
+            <div class="texto-instrucao" style="font-size: 14px;">
+                <p>2. Saia e <strong>Desinstale</strong> este app 🗑️.</p>
+                <p>3. Abra o Chrome e <strong>Cole</strong> o link.</p>
+            </div>
+
+            <button id="btn-entendi-reinstall" class="btn-principal" style="margin-top: 10px;">Entendi, vou fazer</button>
             <button id="btn-ja-instalei" class="btn-sucesso">Já instalei a nova versão</button>
             <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
         </div>
@@ -346,8 +341,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // Nota: v10 para resetar e testar
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v10');
+            // Nota: v11 para resetar e testar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v11');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -355,7 +350,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v10'); // v10
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v11'); // v11
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -375,14 +370,19 @@
         // --- AÇÃO: COPIAR ---
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
+            inputLink.select();
+            inputLink.setSelectionRange(0, 99999); // Mobile fix
             navigator.clipboard.writeText(inputLink.value).then(() => {
                 const btn = document.getElementById('btn-acao-copiar');
-                const textoOriginal = btn.innerText;
-                btn.innerText = "COPIADO!";
-                btn.style.backgroundColor = "#2e7d32"; 
+                const span = btn.querySelector('span');
+                const textoOriginal = span.innerText;
+                
+                span.innerText = "COPIADO COM SUCESSO! ✅";
+                btn.style.backgroundColor = "#2e7d32"; // Verde
+                
                 setTimeout(() => {
-                    btn.innerText = textoOriginal;
-                    btn.style.backgroundColor = "#555";
+                    span.innerText = textoOriginal;
+                    btn.style.backgroundColor = "#007bff"; // Volta pro Azul
                 }, 2000);
             });
         });
@@ -393,11 +393,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v10', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v11', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v10', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v11', 'true');
         });
 
         // Tutorial Navegador
@@ -406,7 +406,7 @@
         });
         document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v10', 'true');
+            localStorage.setItem('tutorial_bloqueado_v11', 'true');
         });
 
     </script>
