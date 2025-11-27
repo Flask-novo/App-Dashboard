@@ -176,7 +176,8 @@
             width: 100%;
             margin-bottom: 10px;
         }
-
+        
+        /* Botão Mágico */
         .btn-magic {
             background: #007bff;
             color: #fff;
@@ -346,10 +347,8 @@
         // 3. Lógica de Detecção
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
-
+        
         // A. JÁ INSTALADO (Reinstalação)
-        // Mudei a chave para 'reinstalacao_bloqueada_v2' para resetar sua memória
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
             const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v2');
             if (!bloqueadoReinstall) {
@@ -358,21 +357,22 @@
         }
 
         // B. NÃO INSTALADO (Tutorial)
-        // Mudei a chave para 'tutorial_bloqueado_v2'
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
             const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v2');
+            
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
                 const txtAndroid = document.getElementById('msg-android');
                 const txtIOS = document.getElementById('msg-ios');
 
+                modalTutorial.style.display = 'block'; // Abre sempre
+
                 if (isIOS) {
                     txtIOS.style.display = 'block';
-                    modalTutorial.style.display = 'block';
-                } else if (isAndroid) {
+                } else {
+                    // Assume Android/Outros como padrão
                     txtAndroid.style.display = 'block'; 
-                    modalTutorial.style.display = 'block';
-                } 
+                }
             }
         }
 
@@ -393,7 +393,7 @@
             });
         });
 
-        // --- Botões (Com as novas chaves _v2) ---
+        // --- Botões ---
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
