@@ -116,38 +116,34 @@
             border-radius: 4px;
         }
 
-        /* --- Estilo da Caixa de Link --- */
+        /* --- Estilo da Caixa de Link (Limpo) --- */
         .box-link {
-            background: #333;
-            padding: 10px; /* Mais espaço */
-            border-radius: 8px;
+            background: transparent;
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid #555;
-            flex-direction: column; /* Coluna para focar no botão */
+            flex-direction: column;
+            gap: 5px;
         }
 
         .input-link {
             background: transparent;
             border: 1px solid #444;
-            padding: 8px;
-            color: #bbb;
-            width: 90%;
+            color: #777;
+            width: 95%;
             font-size: 11px;
             outline: none;
             text-align: center;
+            padding: 5px;
             border-radius: 4px;
-            margin-bottom: 5px;
+            margin: 0 auto;
         }
 
-        /* BOTÃO COPIAR GIGANTE */
-        .btn-copiar {
-            background: #007bff; /* Azul Google */
+        /* BOTÃO COPIAR GIGANTE (ESTRELA DA TELA) */
+        .btn-copiar-gigante {
+            background: #007bff; /* Azul forte */
             color: #fff;
             border: none;
-            padding: 12px 0;
+            padding: 15px 0;
             border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
@@ -156,8 +152,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
             animation: pulse 2s infinite;
         }
 
@@ -167,7 +164,7 @@
             100% { transform: scale(1); }
         }
 
-        /* --- BOTÕES --- */
+        /* --- OUTROS BOTÕES --- */
         .btn-principal {
             background: #ff9800;
             color: #000;
@@ -182,7 +179,7 @@
         }
 
         .btn-sucesso {
-            background: #2e7d32;
+            background: #2e7d32; /* Verde */
             color: #fff;
             border: none;
             padding: 12px 30px;
@@ -194,15 +191,16 @@
             margin-bottom: 10px;
         }
 
-        .btn-navegar {
-            background: #555;
-            color: #fff;
-            border: none;
-            padding: 12px 30px;
+        /* Botão Cinza (Não mostrar) */
+        .btn-cinza-outline {
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 10px 20px;
             border-radius: 50px;
-            font-weight: bold;
+            font-weight: normal;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             width: 100%;
             margin-bottom: 10px;
         }
@@ -243,25 +241,24 @@
             <h3 class="titulo-modal">Novo Ícone Disponível!</h3>
             
             <div class="texto-instrucao" style="text-align: center;">
-                <p>O Android impede a abertura direta do navegador. Por favor:</p>
+                <p style="margin-bottom: 5px;">O Android não atualiza o ícone sozinho.</p>
             </div>
-            
-            <div class="box-link" style="border: none; background: transparent; padding: 0;">
-                
-                <button class="btn-copiar" id="btn-acao-copiar">
-                    <span>1. COPIAR LINK 📋</span>
+
+            <div class="box-link">
+                <button class="btn-copiar-gigante" id="btn-acao-copiar">
+                    <span>COPIAR LINK 📋</span>
                 </button>
                 
                 <input type="text" class="input-link" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar" readonly>
-            
             </div>
 
             <div class="texto-instrucao" style="font-size: 14px;">
+                <p>1. Copie o link acima.</p>
                 <p>2. Saia e <strong>Desinstale</strong> este app 🗑️.</p>
                 <p>3. Abra o Chrome e <strong>Cole</strong> o link.</p>
             </div>
 
-            <button id="btn-entendi-reinstall" class="btn-principal" style="margin-top: 10px;">Entendi, vou fazer</button>
+            <button id="btn-entendi-reinstall" class="btn-principal">Entendi, vou fazer</button>
             <button id="btn-ja-instalei" class="btn-sucesso">Já instalei a nova versão</button>
             <button id="btn-nao-mostrar-reinstall" class="btn-link">Não mostrar novamente</button>
         </div>
@@ -285,7 +282,7 @@
             </div>
 
             <button id="btn-fechar-tutorial" class="btn-principal">Entendi, vou instalar</button>
-            <button id="btn-apenas-navegar" class="btn-navegar">Apenas navegar no site</button>
+            <button id="btn-nao-mostrar-tutorial" class="btn-cinza-outline">Não mostrar novamente</button>
         </div>
     </div>
     
@@ -341,8 +338,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // Nota: v11 para resetar e testar
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v11');
+            // v13 para resetar
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v13');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -350,7 +347,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v11'); // v11
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v13'); // v13
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -372,41 +369,46 @@
             const inputLink = document.getElementById('link-para-copiar');
             inputLink.select();
             inputLink.setSelectionRange(0, 99999); // Mobile fix
+            
             navigator.clipboard.writeText(inputLink.value).then(() => {
                 const btn = document.getElementById('btn-acao-copiar');
                 const span = btn.querySelector('span');
                 const textoOriginal = span.innerText;
                 
-                span.innerText = "COPIADO COM SUCESSO! ✅";
-                btn.style.backgroundColor = "#2e7d32"; // Verde
+                // Feedback visual
+                span.innerText = "LINK COPIADO! ✅";
+                btn.style.backgroundColor = "#2e7d32"; // Verde Sucesso
+                btn.style.animation = "none"; // Para de pulsar
                 
                 setTimeout(() => {
                     span.innerText = textoOriginal;
                     btn.style.backgroundColor = "#007bff"; // Volta pro Azul
-                }, 2000);
+                    btn.style.animation = "pulse 2s infinite"; // Volta a pulsar
+                }, 2500);
             });
         });
 
-        // --- Botões Padrão ---
+        // --- Botões Padrão (PWA) ---
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v11', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v13', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v11', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v13', 'true');
         });
 
-        // Tutorial Navegador
+        // --- Botões Padrão (Navegador) ---
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
         });
-        document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
+        document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v11', 'true');
+            // Salva na memória
+            localStorage.setItem('tutorial_bloqueado_v13', 'true');
         });
 
     </script>
