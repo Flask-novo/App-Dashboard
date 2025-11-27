@@ -12,7 +12,7 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-color: #005e6a; /* Cor do tema do Dashboard */
+            background-color: #005e6a;
             font-family: sans-serif;
         }
         iframe {
@@ -176,10 +176,9 @@
             width: 100%;
             margin-bottom: 10px;
         }
-        
-        /* Botão Mágico de Instalação Direta */
+
         .btn-magic {
-            background: #007bff; /* Azul Google */
+            background: #007bff;
             color: #fff;
             border: none;
             padding: 14px 30px;
@@ -279,17 +278,13 @@
     </div>
     
     <script>
-        // =========================================================
-        //  CONFIGURAÇÕES
-        // =========================================================
         const MOSTRAR_AVISO_REINSTALACAO = true; 
         const MOSTRAR_TUTORIAL_INSTALACAO = true; 
-        // =========================================================
 
         let novoWorker;
         let deferredPrompt; 
 
-        // --- 1. SW (Update) ---
+        // 1. Service Worker
         function mostrarNotificacaoAtualizacao() {
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
@@ -329,7 +324,7 @@
             }
         });
 
-        // --- 2. Captura do Evento "Instalar" (Android) ---
+        // 2. Botão Mágico (Install Prompt)
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -339,7 +334,7 @@
 
         document.getElementById('btn-magic-install').addEventListener('click', async () => {
             if (deferredPrompt) {
-                deferredPrompt.prompt(); 
+                deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
                     deferredPrompt = null;
@@ -348,25 +343,24 @@
             }
         });
 
-        // =========================================================
-        //  LÓGICA DE DETECÇÃO (App vs Navegador)
-        // =========================================================
-        
+        // 3. Lógica de Detecção
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isAndroid = /Android/i.test(navigator.userAgent);
 
         // A. JÁ INSTALADO (Reinstalação)
+        // Mudei a chave para 'reinstalacao_bloqueada_v2' para resetar sua memória
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada');
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v2');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
         }
 
         // B. NÃO INSTALADO (Tutorial)
+        // Mudei a chave para 'tutorial_bloqueado_v2'
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado');
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v2');
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
                 const txtAndroid = document.getElementById('msg-android');
@@ -399,17 +393,17 @@
             });
         });
 
-        // --- Botões (Fechar/Salvar) ---
+        // --- Botões (Com as novas chaves _v2) ---
         document.getElementById('btn-entendi-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v2', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v2', 'true');
         });
 
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
@@ -417,7 +411,7 @@
         });
         document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado', 'true');
+            localStorage.setItem('tutorial_bloqueado_v2', 'true');
         });
 
     </script>
