@@ -152,7 +152,7 @@
 
         /* --- BOTÕES --- */
         .btn-principal {
-            background: #ff9800; /* Laranja */
+            background: #ff9800;
             color: #000;
             border: none;
             padding: 12px 30px;
@@ -165,7 +165,7 @@
         }
 
         .btn-sucesso {
-            background: #2e7d32; /* Verde */
+            background: #2e7d32;
             color: #fff;
             border: none;
             padding: 12px 30px;
@@ -177,20 +177,22 @@
             margin-bottom: 10px;
         }
 
-        /* NOVO: Botão Azul para abrir navegador */
+        /* NOVO: Link disfarçado de Botão Azul */
         .btn-navegador-externo {
             background: #007bff; /* Azul */
             color: #fff;
-            border: none;
+            text-decoration: none; /* Remove sublinhado de link */
+            display: block; /* Ocupa a linha toda */
             padding: 14px 30px;
             border-radius: 50px;
             font-weight: bold;
-            cursor: pointer;
             font-size: 15px;
-            width: 100%;
-            margin-bottom: 20px; /* Destaque */
+            width: auto; /* Ajuste automático */
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
             animation: pulse 2s infinite;
+            border: none;
+            cursor: pointer;
         }
         
         @keyframes pulse {
@@ -199,7 +201,7 @@
             100% { transform: scale(1); }
         }
 
-        /* Botão Cinza para apenas navegar */
+        /* Botão Cinza */
         .btn-navegar {
             background: #555;
             color: #fff;
@@ -256,7 +258,9 @@
             
             <input type="hidden" value="https://flask-novo.github.io/App-Dashboard/" id="link-para-copiar">
             
-            <button id="btn-abrir-navegador" class="btn-navegador-externo">Abrir Site no Navegador 🌐</button>
+            <a href="https://flask-novo.github.io/App-Dashboard/" target="_blank" rel="noopener noreferrer" class="btn-navegador-externo">
+                Abrir Site no Navegador 🌐
+            </a>
 
             <div class="box-link">
                 <span style="font-size: 12px; color: #ccc; flex-grow: 1; text-align: left;">Opção B: Copiar link</span>
@@ -295,9 +299,6 @@
         const MOSTRAR_AVISO_REINSTALACAO = true; 
         const MOSTRAR_TUTORIAL_INSTALACAO = true; 
         
-        // LINK PARA ABRIR NO NAVEGADOR
-        const URL_SITE = "https://flask-novo.github.io/App-Dashboard/";
-
         let novoWorker;
 
         // 1. SW Update
@@ -346,8 +347,8 @@
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            // v6 para resetar e você testar
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v6');
+            // Nota: v7 para resetar testes
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v7');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -355,7 +356,7 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v6'); // v6
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v7'); // v7
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
@@ -372,16 +373,9 @@
             }
         }
 
-        // --- AÇÃO: ABRIR NO NAVEGADOR (Botão Azul) ---
-        document.getElementById('btn-abrir-navegador').addEventListener('click', function() {
-            // Abre o site numa nova aba (sai do PWA)
-            window.open(URL_SITE, '_blank');
-        });
-
         // --- AÇÃO: COPIAR (Backup) ---
         document.getElementById('btn-acao-copiar').addEventListener('click', function() {
             const inputLink = document.getElementById('link-para-copiar');
-            // Como é hidden, usamos writeText direto
             navigator.clipboard.writeText(inputLink.value).then(() => {
                 const btn = document.getElementById('btn-acao-copiar');
                 const textoOriginal = btn.innerText;
@@ -400,11 +394,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v6', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v7', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v6', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v7', 'true');
         });
 
         // Tutorial Navegador
@@ -413,7 +407,7 @@
         });
         document.getElementById('btn-apenas-navegar').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v6', 'true');
+            localStorage.setItem('tutorial_bloqueado_v7', 'true');
         });
 
     </script>
