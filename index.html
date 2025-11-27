@@ -21,7 +21,7 @@
             border: none;
         }
 
-        /* --- 1. Estilo da Caixa de Atualização (SW) --- */
+        /* --- 1. Aviso de Atualização (SW) --- */
         #aviso-atualizacao {
             display: none;
             position: fixed;
@@ -176,28 +176,6 @@
             width: 100%;
             margin-bottom: 10px;
         }
-        
-        /* Botão Mágico */
-        .btn-magic {
-            background: #007bff;
-            color: #fff;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            width: 100%;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
 
         .btn-link {
             background: transparent;
@@ -256,11 +234,6 @@
             <span class="icone-emoji">⬇️</span>
             <h3 class="titulo-modal">Instale o App</h3>
             
-            <div id="area-botao-magic" style="display: none;">
-                <p class="texto-instrucao" style="text-align: center; margin-bottom: 10px;">Instalação rápida disponível:</p>
-                <button id="btn-magic-install" class="btn-magic">📲 INSTALAR AGORA</button>
-            </div>
-
             <div id="msg-android" style="display:none;" class="texto-instrucao">
                 Para uma melhor experiência:<br><br>
                 1. Toque nos <strong>3 pontinhos</strong> <span class="destaque">⋮</span> no canto superior.<br>
@@ -283,9 +256,8 @@
         const MOSTRAR_TUTORIAL_INSTALACAO = true; 
 
         let novoWorker;
-        let deferredPrompt; 
 
-        // 1. Service Worker
+        // 1. SW Update
         function mostrarNotificacaoAtualizacao() {
             document.getElementById('aviso-atualizacao').style.display = 'block';
         }
@@ -325,32 +297,14 @@
             }
         });
 
-        // 2. Botão Mágico (Install Prompt)
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('area-botao-magic').style.display = 'block';
-            document.getElementById('msg-android').style.display = 'none';
-        });
-
-        document.getElementById('btn-magic-install').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    document.getElementById('tutorial-instalacao').style.display = 'none';
-                }
-            }
-        });
-
-        // 3. Lógica de Detecção
+        // 2. Lógica de Detecção Simplificada e Robusta
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         // A. JÁ INSTALADO (Reinstalação)
         if (isPWA && MOSTRAR_AVISO_REINSTALACAO) {
-            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v2');
+            // Nota: Mudei para _v3 para garantir que apareça nos seus testes
+            const bloqueadoReinstall = localStorage.getItem('reinstalacao_bloqueada_v3');
             if (!bloqueadoReinstall) {
                 document.getElementById('aviso-reinstalacao').style.display = 'block';
             }
@@ -358,19 +312,20 @@
 
         // B. NÃO INSTALADO (Tutorial)
         if (!isPWA && MOSTRAR_TUTORIAL_INSTALACAO) {
-            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v2');
+            const bloqueadoTutorial = localStorage.getItem('tutorial_bloqueado_v3');
             
             if (!bloqueadoTutorial) {
                 const modalTutorial = document.getElementById('tutorial-instalacao');
                 const txtAndroid = document.getElementById('msg-android');
                 const txtIOS = document.getElementById('msg-ios');
 
-                modalTutorial.style.display = 'block'; // Abre sempre
+                // Abre o modal de qualquer jeito
+                modalTutorial.style.display = 'block';
 
                 if (isIOS) {
                     txtIOS.style.display = 'block';
                 } else {
-                    // Assume Android/Outros como padrão
+                    // Se não for iPhone, mostra o tutorial de 3 pontinhos (Serve para Android e PC)
                     txtAndroid.style.display = 'block'; 
                 }
             }
@@ -399,11 +354,11 @@
         });
         document.getElementById('btn-ja-instalei').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v2', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v3', 'true');
         });
         document.getElementById('btn-nao-mostrar-reinstall').addEventListener('click', () => {
             document.getElementById('aviso-reinstalacao').style.display = 'none';
-            localStorage.setItem('reinstalacao_bloqueada_v2', 'true');
+            localStorage.setItem('reinstalacao_bloqueada_v3', 'true');
         });
 
         document.getElementById('btn-fechar-tutorial').addEventListener('click', () => {
@@ -411,7 +366,7 @@
         });
         document.getElementById('btn-nao-mostrar-tutorial').addEventListener('click', () => {
             document.getElementById('tutorial-instalacao').style.display = 'none';
-            localStorage.setItem('tutorial_bloqueado_v2', 'true');
+            localStorage.setItem('tutorial_bloqueado_v3', 'true');
         });
 
     </script>
